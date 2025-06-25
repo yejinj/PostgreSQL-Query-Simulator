@@ -1,45 +1,29 @@
 spring:
-  datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/postgres}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:password}
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-      idle-timeout: 300000
-      connection-timeout: 30000
+  application:
+    name: db-resource-simulator
   
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://127.0.0.1:5432/postgres}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    
   jpa:
     hibernate:
-      ddl-auto: none
-    show-sql: false
+      ddl-auto: update
+    show-sql: ${SHOW_SQL:true}
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-  
+        
   thymeleaf:
     cache: false
-    encoding: UTF-8
-    prefix: classpath:/templates/
-    suffix: .html
-  
-  web:
-    locale: ko_KR
     
 server:
-  port: ${SERVER_PORT:8080}
-  servlet:
-    context-path: /
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
-
+  port: ${SERVER_PORT:8090}
+  
 logging:
   level:
-    com.ncp.dbsimulator: ${LOG_LEVEL:INFO}
-    org.springframework.jdbc: ${LOG_LEVEL:DEBUG}
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    com.simulator: ${LOG_LEVEL_SIMULATOR:DEBUG}
+    org.springframework.jdbc: ${LOG_LEVEL_JDBC:DEBUG} 
