@@ -1,0 +1,39 @@
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Logs
+*.log
+app.log
+
+# SQL data files (test/setup data)
+add_more_*.sql
+setup_*.sql
+simple_add_data.sql
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local 
