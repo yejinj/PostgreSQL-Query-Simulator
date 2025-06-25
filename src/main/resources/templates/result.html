@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>쿼리 분석 결과 - PostgreSQL 쿼리 분석기</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #374151;
+            --primary-light: #6b7280;
+            --primary-dark: #111827;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-accent: #f1f5f9;
+            
+            --border-color: #e2e8f0;
+            --border-light: #f1f5f9;
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .query-display {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 13px;
+            background-color: var(--bg-accent);
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin: 0.75rem 0;
+            border-radius: 8px;
+            line-height: 1.5;
+        }
+        
+        .execution-plan {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 12px;
+            background-color: var(--bg-accent);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            max-height: 350px;
+            border: 1px solid var(--border-color);
+            line-height: 1.4;
+        }
+        
+        .performance-card {
+            border-left: 4px solid var(--primary-color);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .suggestion-card {
+            border-left: 4px solid var(--secondary-color);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .resource-card {
+            border-left: 4px solid var(--text-secondary);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .metrics-card {
+            border-left: 4px solid var(--primary-color);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            background: var(--bg-primary);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            background: var(--bg-accent) !important;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.25rem 1.5rem;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .metric-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .grade-A-plus { color: var(--success-color); }
+        .grade-A { color: var(--success-color); }
+        .grade-B-plus { color: var(--primary-color); }
+        .grade-B { color: var(--primary-color); }
+        .grade-C-plus { color: var(--warning-color); }
+        .grade-C { color: var(--warning-color); }
+        .grade-D { color: var(--danger-color); }
+        .grade-F { color: var(--danger-color); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            border: none;
+            box-shadow: var(--shadow-md);
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            background: transparent;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .progress {
+            height: 6px;
+            background-color: var(--bg-accent);
+            border-radius: 3px;
+        }
+
+        .progress-bar {
+            background: var(--primary-color) !important;
+            border-radius: 3px;
+        }
+
+        .bg-info .progress-bar {
+            background: var(--primary-color) !important;
+        }
+
+        .bg-success .progress-bar {
+            background: var(--success-color) !important;
+        }
+
+        .bg-warning .progress-bar {
+            background: var(--warning-color) !important;
+        }
+
+        .bg-primary .progress-bar {
+            background: var(--primary-color) !important;
+        }
+
+        .text-info {
+            color: var(--primary-color) !important;
+        }
+
+        .badge {
+            background: var(--primary-color) !important;
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .badge.bg-success {
+            background: var(--success-color) !important;
+        }
+
+        .table {
+            font-size: 0.9rem;
+        }
+
+        .table th {
+            border-color: var(--border-color);
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.75rem;
+        }
+
+        .table td {
+            border-color: var(--border-color);
+            color: var(--text-primary);
+            padding: 0.75rem;
+        }
+
+        .table-sm th,
+        .table-sm td {
+            padding: 0.5rem;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            border-left: 4px solid;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .alert-info {
+            background: rgba(5, 150, 105, 0.1);
+            border-left-color: var(--success-color);
+            color: #047857;
+        }
+
+        .container {
+            max-width: 1200px;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        h5.card-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .suggestion-item {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: var(--bg-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-item:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .card-body {
+                padding: 1.25rem;
+            }
+
+            .metric-value {
+                font-size: 1.1rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-database me-2"></i>PostgreSQL 쿼리 분석기
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">
+                    <i class="fas fa-arrow-left me-1"></i>돌아가기
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2><i class="fas fa-chart-line me-2"></i>쿼리 성능 분석 결과</h2>
+                    <a href="/" class="btn btn-outline-primary">
+                        <i class="fas fa-plus me-2"></i>새 쿼리 분석
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 원본 쿼리 표시 -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-code me-2"></i>분석된 쿼리
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="query-display" th:text="${result.originalQuery}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 성능 점수 요약 -->
+        <div class="row mb-3">
+            <div class="col-md-3 mb-3">
+                <div class="card performance-card h-100">
+                    <div class="card-body text-center">
+                        <div class="metric-value" 
+                             th:classappend="${'grade-' + #strings.replace(result.resourceMetrics.performanceGrade, '+', '-plus')}"
+                             th:text="${#numbers.formatDecimal(result.resourceMetrics.overallPerformance, 1, 1)} + '%'"></div>
+                        <div class="metric-label">종합 성능 점수</div>
+                        <div class="badge mt-2" th:text="${result.resourceMetrics.performanceGrade}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card resource-card h-100">
+                    <div class="card-body text-center">
+                        <div class="metric-value text-info" th:text="${#numbers.formatDecimal(result.resourceUsage.actualTime, 1, 2)} + 'ms'"></div>
+                        <div class="metric-label">실행 시간</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card resource-card h-100">
+                    <div class="card-body text-center">
+                        <div class="metric-value text-info" th:text="${result.resourceUsage.planRows}"></div>
+                        <div class="metric-label">처리된 행 수</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card resource-card h-100">
+                    <div class="card-body text-center">
+                        <div class="metric-value text-info" th:text="${result.resourceUsage.planWidth} + ' bytes'"></div>
+                        <div class="metric-label">평균 행 크기</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 성능 메트릭 분석 -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card metrics-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-tachometer-alt me-2"></i>성능 메트릭 분석
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>CPU 효율성:</strong></td>
+                                        <td class="text-end">
+                                            <span th:text="${#numbers.formatDecimal(result.resourceMetrics.cpuIntensity, 1, 1)} + '%'"></span>
+                                            <div class="progress mt-1">
+                                                <div class="progress-bar bg-info" 
+                                                     th:style="'width: ' + ${result.resourceMetrics.cpuIntensity} + '%'"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>I/O 효율성:</strong></td>
+                                        <td class="text-end">
+                                            <span th:text="${#numbers.formatDecimal(result.resourceMetrics.ioEfficiency, 1, 1)} + '%'"></span>
+                                            <div class="progress mt-1">
+                                                <div class="progress-bar bg-success" 
+                                                     th:style="'width: ' + ${result.resourceMetrics.ioEfficiency} + '%'"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>메모리 효율성:</strong></td>
+                                        <td class="text-end">
+                                            <span th:text="${#numbers.formatDecimal(result.resourceMetrics.memoryEfficiency, 1, 1)} + '%'"></span>
+                                            <div class="progress mt-1">
+                                                <div class="progress-bar bg-warning" 
+                                                     th:style="'width: ' + ${result.resourceMetrics.memoryEfficiency} + '%'"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>네트워크 효율성:</strong></td>
+                                        <td class="text-end">
+                                            <span th:text="${#numbers.formatDecimal(result.resourceMetrics.networkEfficiency, 1, 1)} + '%'"></span>
+                                            <div class="progress mt-1">
+                                                <div class="progress-bar bg-primary" 
+                                                     th:style="'width: ' + ${result.resourceMetrics.networkEfficiency} + '%'"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 리소스 사용량 상세 -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card resource-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-memory me-2"></i>리소스 사용량 상세
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>버퍼 히트:</strong></td>
+                                        <td class="text-end" th:text="${result.resourceUsage.sharedBlksHit} + ' blocks'"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>디스크 읽기:</strong></td>
+                                        <td class="text-end" th:text="${result.resourceUsage.sharedBlksRead} + ' blocks'"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>디스크 더티:</strong></td>
+                                        <td class="text-end" th:text="${result.resourceUsage.sharedBlksDirtied} + ' blocks'"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>디스크 쓰기:</strong></td>
+                                        <td class="text-end" th:text="${result.resourceUsage.sharedBlksWritten} + ' blocks'"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>버퍼 히트율:</strong> 
+                                    <span th:if="${result.resourceUsage.sharedBlksHit + result.resourceUsage.sharedBlksRead > 0}"
+                                          th:text="${#numbers.formatDecimal((result.resourceUsage.sharedBlksHit * 100.0) / (result.resourceUsage.sharedBlksHit + result.resourceUsage.sharedBlksRead), 1, 1)} + '%'"></span>
+                                    <span th:unless="${result.resourceUsage.sharedBlksHit + result.resourceUsage.sharedBlksRead > 0}">N/A</span>
+                                    - 높을수록 메모리 캐시가 효율적으로 사용됨
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 최적화 제안 -->
+        <div class="row mb-3" th:if="${result.optimizationSuggestions != null and !result.optimizationSuggestions.empty}">
+            <div class="col-12">
+                <div class="card suggestion-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>최적화 제안
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:each="suggestion : ${result.optimizationSuggestions}" class="suggestion-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <span class="badge me-2" th:text="${suggestion.type}"></span>
+                                    <strong th:text="${suggestion.description}"></strong>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted">예상 성능 향상: </small>
+                                    <span class="badge bg-success" th:text="${suggestion.expectedPerformanceImprovement} + '%'"></span>
+                                </div>
+                            </div>
+                            <div th:if="${suggestion.suggestedQuery}" class="mt-2">
+                                <small class="text-muted">제안 쿼리:</small>
+                                <pre class="bg-light p-2 mt-1 small rounded" th:text="${suggestion.suggestedQuery}"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 실행 계획 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-sitemap me-2"></i>실행 계획 (JSON)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="execution-plan">
+                            <pre th:text="${result.executionPlan}"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
