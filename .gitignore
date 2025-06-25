@@ -36,4 +36,8 @@ Thumbs.db
 
 # Environment
 .env
-.env.local 
+.env.local
+.env.example
+
+# Project files
+pom.xml 
