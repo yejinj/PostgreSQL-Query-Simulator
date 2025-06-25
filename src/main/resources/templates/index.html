@@ -702,7 +702,7 @@ LIMIT 10;"
                                 <div class="stat-item">평균 연령</div>
                             </div>
                             <code class="example-code d-block">SELECT COUNT(*) as total_students, 
-AVG(EXTRACT(YEAR FROM age(birth_date))) as avg_age 
+       AVG(EXTRACT(YEAR FROM age(birth_date))) as avg_age 
 FROM school.students WHERE status = 'active';</code>
                         </div>
                     </div>

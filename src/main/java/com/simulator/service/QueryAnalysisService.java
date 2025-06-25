@@ -28,7 +28,7 @@ public class QueryAnalysisService {
     public QueryAnalysisResult analyzeQuery(QueryAnalysisRequest request) {
         try {
             // 1. EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) 실행
-            String explainQuery = "EXPLAIN (ANALYZE true, BUFFERS true, FORMAT JSON) " + request.getSqlQuery();
+            String explainQuery = "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) " + request.getSqlQuery();
             
             List<Map<String, Object>> explainResult = jdbcTemplate.queryForList(explainQuery);
             Object queryPlanObj = explainResult.get(0).get("QUERY PLAN");
