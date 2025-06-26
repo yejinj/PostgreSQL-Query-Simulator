@@ -1,0 +1,123 @@
+/* ===== Schema Browser Specific Styles ===== */
+
+/* ===== Schema Cards ===== */
+.schema-card {
+    border-left: 4px solid var(--primary-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.schema-card:hover {
+    border-left-color: var(--primary-light);
+    transform: translateY(-3px);
+}
+
+.schema-card.selected {
+    border-left-color: var(--success-color);
+    background: linear-gradient(135deg, rgba(5, 150, 105, 0.05) 0%, rgba(5, 150, 105, 0.02) 100%);
+}
+
+/* ===== Table Cards ===== */
+.table-card {
+    border-left: 4px solid var(--secondary-color);
+}
+
+/* ===== Icons ===== */
+.schema-icon {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    box-shadow: var(--shadow-md);
+}
+
+.schema-icon i {
+    font-size: 1.2rem;
+    color: white;
+}
+
+.table-icon {
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--text-muted) 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.75rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.table-icon i {
+    font-size: 0.9rem;
+    color: white;
+}
+
+/* ===== Info Sections ===== */
+.schema-info h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.schema-info .text-muted {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.table-info h6 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.table-info .text-muted {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* ===== Loading State ===== */
+.loading-state {
+    display: none;
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+}
+
+.spinner-border {
+    width: 2rem;
+    height: 2rem;
+    border-color: var(--primary-color);
+    border-right-color: transparent;
+}
+
+/* ===== Mobile Responsive ===== */
+@media (max-width: 768px) {
+    .schema-icon {
+        width: 40px;
+        height: 40px;
+        margin-right: 0.75rem;
+    }
+
+    .schema-icon i {
+        font-size: 1rem;
+    }
+
+    .table-icon {
+        width: 30px;
+        height: 30px;
+        margin-right: 0.5rem;
+    }
+
+    .table-icon i {
+        font-size: 0.8rem;
+    }
+} 

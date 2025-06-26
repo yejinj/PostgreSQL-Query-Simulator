@@ -1,0 +1,95 @@
+/* ===== Result Page Specific Styles ===== */
+
+/* ===== Query Display ===== */
+.query-display {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    font-size: 13px;
+    background-color: var(--bg-accent);
+    border-left: 4px solid var(--primary-color);
+    padding: 1rem;
+    margin: 0.75rem 0;
+    border-radius: 8px;
+    line-height: 1.5;
+}
+
+/* ===== Execution Plan ===== */
+.execution-plan {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    font-size: 12px;
+    background-color: var(--bg-accent);
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    max-height: 350px;
+    border: 1px solid var(--border-color);
+    line-height: 1.4;
+}
+
+/* ===== Performance Cards ===== */
+.performance-card {
+    border-left: 4px solid var(--primary-color);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+
+.suggestion-card {
+    border-left: 4px solid var(--secondary-color);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+
+.resource-card {
+    border-left: 4px solid var(--text-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+
+.metrics-card {
+    border-left: 4px solid var(--primary-color);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+
+/* ===== Metrics ===== */
+.metric-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.metric-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* ===== Grade Colors ===== */
+.grade-A-plus { color: var(--success-color); }
+.grade-A { color: var(--success-color); }
+.grade-B-plus { color: var(--primary-color); }
+.grade-B { color: var(--primary-color); }
+.grade-C-plus { color: var(--warning-color); }
+.grade-C { color: var(--warning-color); }
+.grade-D { color: var(--danger-color); }
+.grade-F { color: var(--danger-color); }
+
+/* ===== Suggestion Items ===== */
+.suggestion-item {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: var(--bg-secondary);
+    transition: all 0.3s ease;
+}
+
+.suggestion-item:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+/* ===== Mobile Responsive ===== */
+@media (max-width: 768px) {
+    .metric-value {
+        font-size: 1.1rem;
+    }
+} 

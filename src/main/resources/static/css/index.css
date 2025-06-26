@@ -1,0 +1,250 @@
+/* ===== Main Container ===== */
+.main-container {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    margin: 1.5rem auto;
+    padding: 2rem;
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-light);
+    max-width: 1200px;
+}
+
+/* ===== Hero Section ===== */
+.hero-section {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem 0;
+    background: var(--bg-accent);
+    border-radius: 12px;
+    margin-top: 0.5rem;
+}
+
+.hero-title {
+    font-size: 1.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
+}
+
+.hero-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+/* ===== Query Textarea ===== */
+.query-textarea {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 160px;
+    font-weight: 400;
+}
+
+/* ===== Quick Info Cards ===== */
+.quick-info-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.2s ease;
+    height: 100%;
+    box-shadow: var(--shadow-sm);
+}
+
+.quick-info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-color);
+}
+
+.quick-info-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--bg-accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.75rem;
+    border: 1px solid var(--border-color);
+}
+
+.quick-info-icon i {
+    font-size: 1rem;
+    color: var(--primary-color);
+}
+
+.quick-info-card h6 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.quick-info-card p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+/* ===== Quick Stats ===== */
+.quick-stats {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 0.5rem;
+}
+
+.stat-item {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.625rem;
+    color: var(--text-secondary);
+}
+
+.stat-number {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* ===== Example Section ===== */
+.example-section {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 2rem;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.example-section h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.example-section p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+    margin-bottom: 1.5rem;
+}
+
+.example-card {
+    background: var(--bg-accent);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.example-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+    border-color: var(--primary-color);
+}
+
+.example-title {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+}
+
+.example-title i {
+    color: var(--primary-color);
+    margin-right: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.example-code {
+    background: var(--primary-dark);
+    color: #a3a3a3;
+    padding: 0.875rem;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    overflow-x: auto;
+    margin: 0;
+    font-weight: 400;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.example-card::after {
+    content: '클릭하여 복사';
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: var(--primary-color);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.625rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.example-card:hover::after {
+    opacity: 1;
+}
+
+/* ===== Improved text readability ===== */
+.text-analysis-feature {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ===== Float Animation ===== */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* ===== Mobile Responsive ===== */
+@media (max-width: 768px) {
+    .main-container {
+        margin: 1rem;
+        padding: 2rem;
+    }
+    
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+    
+    .quick-info-icon {
+        width: 40px;
+        height: 40px;
+        margin-right: 0.75rem;
+    }
+    
+    .quick-info-icon i {
+        font-size: 1rem;
+    }
+} 
