@@ -1,13 +1,17 @@
+# 애플리케이션 설정
 spring:
-  application:
-    name: db-resource-simulator
-  
+  # 데이터베이스 설정
   datasource:
     url: ${DB_URL:jdbc:postgresql://127.0.0.1:5432/postgres}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 10
+      minimum-idle: 5
     
+  # JPA 설정  
   jpa:
     hibernate:
       ddl-auto: update
@@ -16,14 +20,31 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  # 웹 설정
+  mvc:
+    view:
+      prefix: /templates/
+      suffix: .html
         
   thymeleaf:
     cache: false
     
+# 서버 설정  
 server:
   port: ${SERVER_PORT:8090}
+  address: 0.0.0.0  # 모든 IP에서 접근 허용
   
+# 로깅 설정
 logging:
   level:
     com.simulator: ${LOG_LEVEL_SIMULATOR:DEBUG}
     org.springframework.jdbc: ${LOG_LEVEL_JDBC:DEBUG} 
+    org.springframework.web: INFO
+
+# OpenAI API 설정
+openai:
+  api:
+    key: ${OPENAI_API_KEY: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}
+    url: ${OPENAI_API_URL:https://api.openai.com/v1} 

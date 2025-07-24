@@ -9,10 +9,502 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
     
-    <!-- Custom CSS -->
-    <link href="/css/common.css" rel="stylesheet">
-    <link href="/css/index.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #374151;
+            --primary-light: #6b7280;
+            --primary-dark: #111827;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-accent: #f1f5f9;
+            
+            --border-color: #e2e8f0;
+            --border-light: #f1f5f9;
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        
+        /* Navbar */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: var(--primary-color);
+        }
+        
+        .nav-link {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem !important;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            margin: 0 0.125rem;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: var(--primary-color);
+            color: white !important;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        /* Main Container */
+        .main-container {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-light);
+            max-width: 1200px;
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem 0;
+            background: var(--bg-accent);
+            border-radius: 12px;
+            margin-top: 0.5rem;
+        }
+        
+        .hero-title {
+            font-size: 1.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            line-height: 1.2;
+        }
+        
+        .hero-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+        
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+            background: var(--bg-primary);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .card-header {
+            background: var(--bg-accent);
+            color: var(--text-primary);
+            border: none;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        /* Form Elements */
+        .form-label {
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-control {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            background: var(--bg-secondary);
+            font-weight: 400;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(55, 65, 81, 0.1);
+            background: var(--bg-primary);
+            outline: none;
+        }
+        
+        .query-textarea {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            resize: vertical;
+            min-height: 160px;
+            font-weight: 400;
+        }
+        
+        /* Buttons */
+        .btn {
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            border: none;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: var(--shadow-sm);
+            font-size: 0.875rem;
+            padding: 0.75rem 1.5rem;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+            background: var(--primary-dark);
+        }
+        
+        .btn-outline-primary {
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+            font-weight: 500;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .btn-outline-secondary {
+            border: 1px solid var(--text-secondary);
+            color: var(--text-secondary);
+            background: transparent;
+            font-weight: 500;
+        }
+        
+        .btn-outline-secondary:hover {
+            background: var(--text-secondary);
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        /* Quick Info Cards - 더 컴팩트하게 */
+        .quick-info-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.2s ease;
+            height: 100%;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .quick-info-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
+        }
+        
+        .quick-info-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .quick-info-icon i {
+            font-size: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .quick-info-card h6 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .quick-info-card p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+        
+        /* Query List Styles */
+        .example-section {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .example-section h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .example-section p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+        }
+        
+        .query-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .query-item {
+            background: var(--bg-accent);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .query-item:hover {
+            background: var(--bg-primary);
+            border-color: var(--primary-color);
+            transform: translateX(5px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .query-item i {
+            font-size: 1rem;
+            min-width: 20px;
+        }
+        
+        /* Badges - 무채색으로 변경 */
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+        
+        .badge.bg-info {
+            background: var(--text-muted) !important;
+            color: white;
+        }
+        
+        /* Quick Stats */
+        .quick-stats {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 0.5rem;
+        }
+        
+        .stat-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.625rem;
+            color: var(--text-secondary);
+        }
+        
+        .stat-number {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        /* Alerts */
+        .alert {
+            border: none;
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            border-left: 4px solid;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        
+        .alert-danger {
+            background: rgba(220, 38, 38, 0.1);
+            border-left-color: var(--danger-color);
+            color: #b91c1c;
+        }
+        
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 1rem;
+                padding: 2rem;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            
+            .btn {
+                padding: 0.875rem 1.5rem;
+                font-size: 0.95rem;
+            }
+            
+            .btn-primary {
+                font-size: 1rem;
+                padding: 1rem 2rem;
+            }
+            
+            .card-header {
+                padding: 1.25rem 1.5rem;
+                font-size: 1rem;
+            }
+            
+            .card-body {
+                padding: 1.5rem;
+            }
+        }
+        
+        /* Loading spinner */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(55, 65, 81, 0.1);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Focus states for accessibility */
+        .btn:focus, .form-control:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+        
+        /* Improved text readability */
+        .text-analysis-feature {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        /* Enhanced contrast for better readability */
+        small, .small {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+    </style>
 </head>
 <body>
     <!-- Loading Overlay -->
@@ -31,8 +523,8 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <div class="navbar-nav ms-auto">
-                    <a class="nav-link active" href="/">
-                        <i class="fas fa-chart-line me-2"></i>쿼리 분석
+                    <a class="nav-link" href="/">
+                        <i class="fas fa-plus-circle me-2"></i>새 분석
                     </a>
                     <a class="nav-link" href="/schema/browser">
                         <i class="fas fa-table me-2"></i>스키마 브라우저
@@ -52,36 +544,38 @@
 
             <div class="row g-4">
                 <!-- Main Query Input -->
-                <div class="col-lg-8">
-                    <div class="card">
-                        <div class="card-header">
+                <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
                             <h5 class="card-title mb-0">
                                 <i class="fas fa-code me-2"></i>SQL 쿼리 입력
                             </h5>
-                        </div>
-                        <div class="card-body">
+                    </div>
+                    <div class="card-body">
                             <div th:if="${error}" class="alert alert-danger" role="alert">
                                 <i class="fas fa-exclamation-triangle me-2"></i><span th:text="${error}"></span>
-                            </div>
-                            
+                        </div>
+
                             <form th:action="@{/analyze}" th:object="${queryRequest}" method="post" id="analysisForm">
-                                <div class="mb-3">
+                                    <div class="mb-3">
                                     <label for="sqlQuery" class="form-label">
                                         <i class="fas fa-code me-2"></i>PostgreSQL 쿼리를 입력하세요
                                     </label>
                                     <textarea th:field="*{sqlQuery}" 
                                              class="form-control query-textarea" 
-                                             id="sqlQuery" 
+                                            id="sqlQuery" 
                                              rows="12" 
-                                             placeholder="예시:
-SELECT s.name, s.student_id, AVG(e.total_score) as avg_score
+                                             placeholder="병목 유발 쿼리 예시:
+SELECT s.name, s.student_number,
+    (SELECT COUNT(*) FROM school.enrollments e WHERE e.student_id = s.student_id) as course_count,
+    (SELECT AVG(e2.grade) FROM school.enrollments e2 WHERE e2.student_id = s.student_id) as avg_grade
 FROM school.students s
-JOIN school.enrollments e ON s.student_id = e.student_id  
-WHERE s.enrollment_date > '2020-01-01'
-GROUP BY s.student_id, s.name
-ORDER BY avg_score DESC
-LIMIT 10;"
-                                             required></textarea>
+WHERE s.status = '재학'
+ORDER BY (SELECT COUNT(*) FROM school.enrollments e3 WHERE e3.student_id = s.student_id) DESC
+LIMIT 50;
+
+💡 하단 '성능 병목 테스트 쿼리' 섹션에서 더 복잡한 예시를 확인하세요!"
+                                            required></textarea>
                                     <div th:if="${#fields.hasErrors('sqlQuery')}" class="text-danger mt-2">
                                         <small th:errors="*{sqlQuery}"></small>
                                     </div>
@@ -93,9 +587,9 @@ LIMIT 10;"
                                         <span class="badge bg-info ms-2">선택사항</span>
                                     </label>
                                     <input th:field="*{schemaName}" 
-                                           type="text" 
-                                           class="form-control" 
-                                           id="schemaName" 
+                                            type="text" 
+                                            class="form-control" 
+                                            id="schemaName"
                                            placeholder="school 또는 public을 입력하세요 (기본값: school)">
                                 </div>
                                 
@@ -107,134 +601,39 @@ LIMIT 10;"
                             </form>
                         </div>
                     </div>
-                </div>
+                                    </div>
 
-                <!-- Quick Info Sidebar -->
-                <div class="col-lg-4">
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <div class="quick-info-card">
-                                <div class="quick-info-icon">
-                                    <i class="fas fa-table"></i>
-                                </div>
-                                <h6>스키마 탐색</h6>
-                                <p>데이터베이스 구조와 테이블을 미리 확인하세요</p>
-                                <a href="/schema/browser" class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-external-link-alt me-2"></i>스키마 브라우저
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <div class="col-12">
-                            <div class="quick-info-card">
-                                <div class="quick-info-icon">
-                                    <i class="fas fa-magic"></i>
-                                </div>
-                                <h6>샘플 쿼리</h6>
-                                <p>예제 쿼리로 빠르게 시작해보세요</p>
-                                <button class="btn btn-outline-secondary btn-sm" onclick="insertSampleQuery()">
-                                    <i class="fas fa-code me-2"></i>샘플 삽입
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="col-12">
-                            <div class="quick-info-card">
-                                <div class="quick-info-icon">
-                                    <i class="fas fa-chart-bar"></i>
-                                </div>
-                                <h6>분석 결과</h6>
-                                <p>실행계획, 리소스 사용량, 성능 메트릭, 최적화 제안</p>
-                                <div class="quick-stats">
-                                    <div class="stat-item">CPU <span class="stat-number">✓</span></div>
-                                    <div class="stat-item">메모리 <span class="stat-number">✓</span></div>
-                                    <div class="stat-item">I/O <span class="stat-number">✓</span></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
             </div>
 
-            <!-- Example Queries Section -->
+            <!-- Performance Test Queries Section -->
             <div class="example-section">
                 <div class="text-center mb-4">
-                    <h3>
-                        <i class="fas fa-code me-2"></i>테스트 쿼리 예시
-                    </h3>
-                    <p>대용량 데이터셋으로 PostgreSQL 성능 분석을 체험해보세요</p>
+                    <h3>성능 병목 테스트 쿼리</h3>
+                    <p class="text-warning">
+                        의도적으로 성능 문제를 유발하는 쿼리들입니다. 클릭하면 자동으로 복사됩니다.
+                    </p>
                 </div>
 
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="example-card" onclick="copyQuery(this)" data-query="SELECT COUNT(*) as total_students, AVG(EXTRACT(YEAR FROM age(birth_date))) as avg_age FROM school.students WHERE status = 'active';">
-                            <h6 class="example-title">
-                                <i class="fas fa-users"></i>학생 통계 조회
-                            </h6>
-                            <div class="quick-stats mb-2">
-                                <div class="stat-item"><span class="stat-number">20K</span> 학생</div>
-                                <div class="stat-item">평균 연령</div>
-                            </div>
-                            <code class="example-code d-block">SELECT COUNT(*) as total_students, 
-       AVG(EXTRACT(YEAR FROM age(birth_date))) as avg_age 
-FROM school.students WHERE status = 'active';</code>
-                        </div>
+                <div class="query-list">
+                    <div class="query-item" onclick="copyToEditor(this)"
+                         data-query="SELECT s1.name as student1, s2.name as student2, s3.name as student3, COUNT(DISTINCT c1.course_id) + COUNT(DISTINCT c2.course_id) + COUNT(DISTINCT c3.course_id) as total_courses, AVG(CAST(e1.grade AS INTEGER) * CAST(e2.grade AS INTEGER) * CAST(e3.grade AS INTEGER)) as grade_product FROM school.students s1 CROSS JOIN school.students s2 CROSS JOIN school.students s3 JOIN school.enrollments e1 ON s1.student_id = e1.student_id JOIN school.enrollments e2 ON s2.student_id = e2.student_id JOIN school.enrollments e3 ON s3.student_id = e3.student_id JOIN school.courses c1 ON e1.course_id = c1.course_id JOIN school.courses c2 ON e2.course_id = c2.course_id JOIN school.courses c3 ON e3.course_id = c3.course_id WHERE s1.student_id < s2.student_id AND s2.student_id < s3.student_id AND e1.course_id = e2.course_id AND e2.course_id = e3.course_id GROUP BY s1.student_id, s1.name, s2.student_id, s2.name, s3.student_id, s3.name HAVING COUNT(DISTINCT c1.course_id) > 0 ORDER BY grade_product DESC LIMIT 20;">
+                        삼중 CROSS JOIN
+                    </div>
+                    
+                    <div class="query-item" onclick="copyToEditor(this)"
+                         data-query="SELECT s1.name AS student1, s2.name AS student2, COUNT(DISTINCT c1.course_id) AS total_courses, AVG(CAST(e1.grade AS INTEGER) * CAST(e2.grade AS INTEGER)) AS grade_product FROM school.students s1 CROSS JOIN school.students s2 JOIN school.enrollments e1 ON s1.student_id = e1.student_id JOIN school.enrollments e2 ON s2.student_id = e2.student_id JOIN school.courses c1 ON e1.course_id = c1.course_id JOIN school.courses c2 ON e2.course_id = c2.course_id WHERE s1.student_id < s2.student_id AND e1.course_id = e2.course_id GROUP BY s1.student_id, s1.name, s2.student_id, s2.name HAVING COUNT(DISTINCT c1.course_id) > 0 ORDER BY grade_product DESC LIMIT 20;">
+                        이중 CROSS JOIN
                     </div>
 
-                    <div class="col-md-6">
-                        <div class="example-card" onclick="copyQuery(this)" data-query="SELECT c.course_name, COUNT(e.student_id) as enrollment_count, AVG(e.total_score) as avg_score FROM school.courses c LEFT JOIN school.enrollments e ON c.course_id = e.course_id GROUP BY c.course_id, c.course_name ORDER BY enrollment_count DESC LIMIT 10;">
-                            <h6 class="example-title">
-                                <i class="fas fa-chart-line"></i>수강신청 분석
-                            </h6>
-                            <div class="quick-stats mb-2">
-                                <div class="stat-item"><span class="stat-number">170K</span> 건</div>
-                                <div class="stat-item">TOP 10</div>
-                            </div>
-                            <code class="example-code d-block">SELECT c.course_name, COUNT(e.student_id) as enrollment_count,
-AVG(e.total_score) as avg_score FROM school.courses c 
-LEFT JOIN school.enrollments e ON c.course_id = e.course_id 
-GROUP BY c.course_id, c.course_name 
-ORDER BY enrollment_count DESC LIMIT 10;</code>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="example-card" onclick="copyQuery(this)" data-query="SELECT d.department_name, COUNT(p.professor_id) as professor_count, d.building FROM school.departments d LEFT JOIN school.professors p ON d.department_id = p.department_id GROUP BY d.department_id, d.department_name, d.building ORDER BY professor_count DESC;">
-                            <h6 class="example-title">
-                                <i class="fas fa-chalkboard-teacher"></i>학과별 교수 현황
-                            </h6>
-                            <div class="quick-stats mb-2">
-                                <div class="stat-item"><span class="stat-number">1K</span> 교수</div>
-                                <div class="stat-item">60 학과</div>
-                            </div>
-                            <code class="example-code d-block">SELECT d.department_name, COUNT(p.professor_id) as professor_count,
-d.building FROM school.departments d 
-LEFT JOIN school.professors p ON d.department_id = p.department_id 
-GROUP BY d.department_id, d.department_name, d.building 
-ORDER BY professor_count DESC;</code>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="example-card" onclick="copyQuery(this)" data-query="SELECT c.course_name, COUNT(e.student_id) as enrollment_count, c.credits, p.name as professor_name FROM school.courses c LEFT JOIN school.enrollments e ON c.course_id = e.course_id LEFT JOIN school.professors p ON c.professor_id = p.professor_id WHERE c.semester = '2024-1' GROUP BY c.course_id, c.course_name, c.credits, p.name ORDER BY enrollment_count DESC LIMIT 5;">
-                            <h6 class="example-title">
-                                <i class="fas fa-book"></i>과목별 수강자 수
-                            </h6>
-                            <div class="quick-stats mb-2">
-                                <div class="stat-item"><span class="stat-number">3K</span> 과목</div>
-                                <div class="stat-item">2024-1</div>
-                            </div>
-                            <code class="example-code d-block">SELECT c.course_name, COUNT(e.student_id) as enrollment_count,
-c.credits, p.name as professor_name FROM school.courses c 
-LEFT JOIN school.enrollments e ON c.course_id = e.course_id 
-LEFT JOIN school.professors p ON c.professor_id = p.professor_id
-WHERE c.semester = '2024-1' 
-GROUP BY c.course_id, c.course_name, c.credits, p.name 
-ORDER BY enrollment_count DESC LIMIT 5;</code>
-                        </div>
+                    <div class="query-item" onclick="copyToEditor(this)"
+                         data-query="SELECT s.name, s.student_number, (SELECT COUNT(*) FROM school.enrollments e WHERE e.student_id = s.student_id) as course_count, (SELECT AVG(CAST(e2.grade AS INTEGER)) FROM school.enrollments e2 WHERE e2.student_id = s.student_id) as avg_grade, (SELECT d.department_name FROM school.departments d WHERE d.department_id = s.department_id) as department FROM school.students s WHERE s.status = '재학' ORDER BY (SELECT COUNT(*) FROM school.enrollments e3 WHERE e3.student_id = s.student_id) DESC LIMIT 50;">
+                        스칼라 서브쿼리 (N+1 문제)
                     </div>
                 </div>
             </div>
+
+
         </div>
     </div>
 
@@ -242,15 +641,65 @@ ORDER BY enrollment_count DESC LIMIT 5;</code>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function insertSampleQuery() {
-            const sampleQueries = [
-                "SELECT COUNT(*) FROM school.students WHERE enrollment_date > NOW() - INTERVAL '1 year';",
-                "SELECT d.department_name, COUNT(s.student_id) as student_count FROM school.departments d LEFT JOIN school.students s ON d.department_id = s.department_id GROUP BY d.department_id, d.department_name ORDER BY student_count DESC;",
-                "SELECT c.course_name, COUNT(e.student_id) as enrollment_count FROM school.courses c LEFT JOIN school.enrollments e ON c.course_id = e.course_id GROUP BY c.course_id, c.course_name ORDER BY enrollment_count DESC LIMIT 10;"
+            const complexQueries = [
+                // 삼중 CROSS JOIN
+                "SELECT s1.name as student1, s2.name as student2, s3.name as student3, " +
+                "COUNT(DISTINCT c1.course_id) + COUNT(DISTINCT c2.course_id) + COUNT(DISTINCT c3.course_id) as total_courses, " +
+                "AVG(CASE WHEN e1.grade ~ '^[0-9]+$' AND e2.grade ~ '^[0-9]+$' AND e3.grade ~ '^[0-9]+$' " +
+                "THEN e1.grade::INTEGER * e2.grade::INTEGER * e3.grade::INTEGER " +
+                "ELSE 80 * 80 * 80 END) as grade_product " +
+                "FROM school.students s1 CROSS JOIN school.students s2 CROSS JOIN school.students s3 " +
+                "JOIN school.enrollments e1 ON s1.student_id = e1.student_id " +
+                "JOIN school.enrollments e2 ON s2.student_id = e2.student_id " +
+                "JOIN school.enrollments e3 ON s3.student_id = e3.student_id " +
+                "JOIN school.courses c1 ON e1.course_id = c1.course_id " +
+                "JOIN school.courses c2 ON e2.course_id = c2.course_id " +
+                "JOIN school.courses c3 ON e3.course_id = c3.course_id " +
+                "WHERE s1.student_id < s2.student_id AND s2.student_id < s3.student_id " +
+                "AND e1.course_id = e2.course_id AND e2.course_id = e3.course_id " +
+                "GROUP BY s1.student_id, s1.name, s2.student_id, s2.name, s3.student_id, s3.name " +
+                "HAVING COUNT(DISTINCT c1.course_id) > 0 ORDER BY grade_product DESC LIMIT 20;"
             ];
             
-            const randomQuery = sampleQueries[Math.floor(Math.random() * sampleQueries.length)];
+            const randomQuery = complexQueries[Math.floor(Math.random() * complexQueries.length)];
             document.getElementById('sqlQuery').value = randomQuery;
             document.getElementById('sqlQuery').focus();
+            
+            // 시각적 피드백
+            const button = document.querySelector('button[onclick="insertSampleQuery()"]');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check me-2"></i>병목 쿼리 삽입됨!';
+            setTimeout(() => {
+                button.innerHTML = originalText;
+            }, 2000);
+        }
+
+        function copyToEditor(element) {
+            const query = element.getAttribute('data-query');
+            if (query) {
+                // 쿼리를 에디터에 입력
+                document.getElementById('sqlQuery').value = query;
+                document.getElementById('sqlQuery').focus();
+                
+                // 시각적 피드백
+                const icon = element.querySelector('i');
+                const originalIconClass = icon.className;
+                const originalText = element.textContent;
+                
+                icon.className = 'fas fa-check text-success me-2';
+                element.innerHTML = '<i class="fas fa-check text-success me-2"></i>에디터에 입력 완료!';
+                
+                setTimeout(() => {
+                    icon.className = originalIconClass;
+                    element.innerHTML = originalText;
+                }, 2000);
+                
+                // 쿼리 입력 영역으로 스크롤
+                document.getElementById('sqlQuery').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+            }
         }
 
         function copyQuery(element) {

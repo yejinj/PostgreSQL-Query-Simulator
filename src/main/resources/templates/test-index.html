@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인덱스 테스트</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>인덱스 생성 테스트</h2>
+        
+        <div class="card">
+            <div class="card-body">
+                <h5>school.courses 테이블에 인덱스 생성</h5>
+                
+                <div class="mb-3">
+                    <label for="testIndexName" class="form-label">인덱스 이름</label>
+                    <input type="text" class="form-control" id="testIndexName" value="test_idx_simple">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="testColumns" class="form-label">컬럼</label>
+                    <input type="text" class="form-control" id="testColumns" value="course_code">
+                </div>
+                
+                <button onclick="testCreateIndex()" class="btn btn-primary">인덱스 생성 테스트</button>
+                <button onclick="testExistingIndexes()" class="btn btn-secondary ms-2">기존 인덱스 확인</button>
+                
+                <div id="testResult" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function testCreateIndex() {
+            console.log('=== 테스트 시작 ===');
+            
+            const indexName = document.getElementById('testIndexName').value;
+            const columns = document.getElementById('testColumns').value;
+            
+            console.log('인덱스 이름:', indexName);
+            console.log('컬럼:', columns);
+            
+            const formData = new FormData();
+            formData.append('indexName', indexName);
+            formData.append('columns', columns);
+            formData.append('indexType', 'BTREE');
+            formData.append('isUnique', 'false');
+            
+            console.log('FormData 내용:');
+            for (let [key, value] of formData.entries()) {
+                console.log(key, '=', value);
+            }
+            
+            const url = '/schema/school/courses/indexes';
+            console.log('요청 URL:', url);
+            
+            // 로딩 표시
+            document.getElementById('testResult').innerHTML = 
+                '<div class="alert alert-info">인덱스 생성 중...</div>';
+            
+            fetch(url, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('응답 상태:', response.status);
+                console.log('응답 헤더:', response.headers);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('서버 응답:', data);
+                const alertType = data.success ? 'success' : 'danger';
+                document.getElementById('testResult').innerHTML = 
+                    `<div class="alert alert-${alertType}">
+                        <strong>결과:</strong> ${data.message}<br>
+                        ${data.sql ? `<strong>실행된 SQL:</strong> <code>${data.sql}</code>` : ''}
+                    </div>`;
+            })
+            .catch(error => {
+                console.error('오류:', error);
+                document.getElementById('testResult').innerHTML = 
+                    `<div class="alert alert-danger"><strong>오류:</strong> ${error.message}</div>`;
+            });
+        }
+        
+        function testExistingIndexes() {
+            console.log('=== 기존 인덱스 확인 ===');
+            
+            const url = '/schema/school/courses/indexes';
+            console.log('요청 URL:', url);
+            
+            document.getElementById('testResult').innerHTML = 
+                '<div class="alert alert-info">인덱스 목록 확인 중...</div>';
+            
+            fetch(url)
+            .then(response => {
+                console.log('응답 상태:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('인덱스 목록:', data);
+                if (data.success && data.indexes) {
+                    let html = '<div class="alert alert-success"><strong>기존 인덱스 목록:</strong><ul>';
+                    data.indexes.forEach(index => {
+                        html += `<li><strong>${index.index_name}</strong> (${index.index_type}) - ${index.index_size}</li>`;
+                    });
+                    html += '</ul></div>';
+                    document.getElementById('testResult').innerHTML = html;
+                } else {
+                    document.getElementById('testResult').innerHTML = 
+                        `<div class="alert alert-warning">인덱스 목록을 가져올 수 없습니다: ${data.message || '알 수 없는 오류'}</div>`;
+                }
+            })
+            .catch(error => {
+                console.error('오류:', error);
+                document.getElementById('testResult').innerHTML = 
+                    `<div class="alert alert-danger"><strong>오류:</strong> ${error.message}</div>`;
+            });
+        }
+    </script>
+</body>
+</html> 

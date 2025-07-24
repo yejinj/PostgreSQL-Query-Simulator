@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스키마 브라우저 - PostgreSQL 쿼리 분석기</title>
+    <title>스키마 브라우저 - PostgreSQL 분석기</title>
+    
+    <!-- CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Custom CSS -->
-    <link href="/css/common.css" rel="stylesheet">
-    <link href="/css/schema-browser.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
 </head>
 <body>
+    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="/">
@@ -24,7 +24,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <div class="navbar-nav ms-auto">
                     <a class="nav-link" href="/">
-                        <i class="fas fa-chart-line me-2"></i>쿼리 분석
+                        <i class="fas fa-plus-circle me-2"></i>새 분석
                     </a>
                     <a class="nav-link active" href="/schema/browser">
                         <i class="fas fa-table me-2"></i>스키마 브라우저
@@ -34,185 +34,523 @@
         </div>
     </nav>
 
-    <div class="container mt-3">
-        <div class="row">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h2><i class="fas fa-table me-2"></i>PostgreSQL 스키마 브라우저</h2>
-                    <a href="/" class="btn btn-outline-primary">
-                        <i class="fas fa-arrow-left me-2"></i>분석기로 돌아가기
-                    </a>
-                </div>
+    <!-- Main Content -->
+    <div class="container mt-4 fade-in-up">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                <!-- 헤더 -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-table me-2"></i>데이터베이스 스키마 브라우저
+                        </h5>
+                        <small class="text-muted">데이터베이스 구조를 탐색하고 테이블 정보를 확인하세요</small>
+                    </div>
             </div>
+
+                <!-- 오류 메시지 -->
+                <div th:if="${error}" class="alert alert-primary mb-3">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span th:text="${error}"></span>
+                </div>
+
+                <div class="row">
+                <!-- 스키마 목록 -->
+                    <div class="col-12">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-folder me-2"></i>사용 가능한 스키마
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                <div th:if="${schemas != null and !schemas.isEmpty()}">
+                                    <div th:each="schema : ${schemas}" class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-medium" th:text="${schema}">schema_name</span>
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                            onclick="loadTables(this.getAttribute('data-schema'))"
+                                            th:attr="data-schema=${schema}">
+                                            <i class="bi bi-table me-1"></i>테이블 보기
+                                    </button>
+                                    </div>
+                                </div>
+                                <div th:if="${schemas == null or schemas.isEmpty()}" class="text-center text-muted py-3">
+                                    <i class="bi bi-folder-x mb-2" style="font-size: 2rem;"></i>
+                                    <p class="mb-0">표시할 스키마가 없습니다.</p>
+                                    <small>데이터베이스에 사용자 정의 스키마를 생성해주세요.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
         </div>
 
-        <!-- 스키마 목록 -->
-        <div class="row">
-            <div class="col-lg-4">
-                <div class="card border-0 shadow-sm mb-3">
-                    <div class="card-body">
-                        <h4 class="mb-3"><i class="fas fa-layer-group me-2 text-primary"></i>스키마 목록</h4>
-                    </div>
-                </div>
-                
-                <div th:each="schema : ${schemas}" class="card schema-card" th:data-schema="${schema}">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="schema-icon">
-                                <i class="fas fa-database"></i>
-                            </div>
-                            <div class="schema-info flex-grow-1">
-                                <h5 th:text="${schema}"></h5>
-                                <span class="text-muted">클릭하여 테이블 목록 보기</span>
-                            </div>
-                            <i class="fas fa-chevron-right text-muted"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div th:if="${schemas == null or schemas.empty}" class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    사용 가능한 스키마가 없습니다.
-                </div>
+                <!-- 테이블 목록 -->
+                <div id="tablesContainer" class="card mb-3" style="display: none;">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="bi bi-table me-2"></i>테이블 목록
+                        </h6>
             </div>
+            <div class="card-body">
+                        <div id="tablesList" class="row"></div>
+                    </div>
+                </div>
 
-            <!-- 테이블 목록 -->
-            <div class="col-lg-8">
-                <div class="card border-0 shadow-sm mb-3">
+                <!-- 인덱스 관리 섹션 -->
+                <div id="indexManagement" class="card mb-3" style="display: none;">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-bolt me-2"></i>인덱스 관리 
+                            <span id="currentTable" class="text-muted"></span>
+                        </h6>
+                        <button class="btn btn-sm btn-secondary" onclick="openCreateModal()">
+                            <i class="fas fa-plus me-1"></i>인덱스 생성
+                        </button>
+                    </div>
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h4 class="mb-0"><i class="fas fa-list me-2 text-primary"></i>테이블 목록</h4>
-                    <span id="selected-schema" class="badge bg-success" style="display: none;"></span>
+                        <div class="row">
+                            <div class="col-12">
+                                <h6 class="text-muted">기존 인덱스 목록</h6>
+                                <div id="indexesList"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="loading-state" id="loading-state">
-                    <div class="spinner-border" role="status" aria-hidden="true"></div>
-                    <p class="mt-2">테이블 정보를 불러오는 중...</p>
+                <!-- 인덱스 생성 폼 (항상 숨김) -->
+                <div id="createIndexForm" style="display: none; margin-top: 20px; padding: 20px; border: 2px solid #6c757d; border-radius: 8px; background-color: #f8f9fa;">
+                    <h5 style="margin-bottom: 15px; color: #6c757d;">
+                        <i class="fas fa-plus me-2"></i>새 인덱스 생성
+                        <button type="button" onclick="hideCreateForm()" style="float: right; background: none; border: none; font-size: 20px; color: #999; cursor: pointer;">&times;</button>
+                    </h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="newIndexName" class="form-label">인덱스 이름</label>
+                                <input type="text" class="form-control" id="newIndexName" 
+                                       placeholder="예: idx_students_name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="newIndexType" class="form-label">인덱스 타입</label>
+                                <select class="form-select" id="newIndexType">
+                                    <option value="BTREE" selected>B-Tree (기본)</option>
+                                    <option value="HASH">Hash</option>
+                                    <option value="GIN">GIN (전문 검색)</option>
+                                    <option value="GIST">GiST (공간 데이터)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="newIndexColumns" class="form-label">컬럼 (쉼표로 구분)</label>
+                        <input type="text" class="form-control" id="newIndexColumns" 
+                               placeholder="예: name, email" required>
+                        <div class="form-text">
+                            <small class="text-muted">
+                                여러 컬럼을 쉼표로 구분하여 입력하세요.<br>
+                                <strong>사용 가능한 컬럼:</strong> <span id="availableColumnsList" class="text-primary"></span>
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="newIsUnique">
+                            <label class="form-check-label" for="newIsUnique">
+                                UNIQUE 인덱스
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary" onclick="hideCreateForm()">취소</button>
+                        <button type="button" class="btn btn-dark" onclick="submitNewIndex()">생성</button>
+                    </div>
                 </div>
 
-                <div id="tables-container">
-                    <div class="alert alert-info">
-                        <i class="fas fa-hand-point-left me-2"></i>
-                        좌측에서 스키마를 선택하면 해당 스키마의 테이블 목록이 표시됩니다.
-                    </div>
+                <!-- 돌아가기 버튼 -->
+                <div class="text-center mb-4">
+                    <a href="/" class="btn btn-primary">
+                        <i class="bi bi-arrow-left me-2"></i>쿼리 분석으로 돌아가기
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let currentSchema = null;
+        // 전역 변수
+        let currentSchema = '';
+        let currentTableName = '';
         
-        function loadTables(schemaName) {
-            // 이전 선택 제거
-            document.querySelectorAll('.schema-card').forEach(card => {
-                card.classList.remove('selected');
-            });
+        // 페이지 로드 시 이벤트 리스너 설정
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('페이지 로드 완료');
             
-            // 현재 선택된 카드 표시
-            const selectedCard = document.querySelector(`[data-schema="${schemaName}"]`);
-            if (selectedCard) {
-                selectedCard.classList.add('selected');
+            // 인덱스 생성 버튼 이벤트 리스너
+            const createBtn = document.getElementById('createIndexBtn');
+            if (createBtn) {
+                createBtn.addEventListener('click', function() {
+                    alert('이벤트 리스너로 버튼 클릭됨!');
+                    createIndex();
+                });
+                console.log('인덱스 생성 버튼 이벤트 리스너 등록됨');
+            } else {
+                console.error('createIndexBtn 버튼을 찾을 수 없음');
             }
-            currentSchema = schemaName;
-            
-            // 선택된 스키마 배지 표시
-            const schemaBadge = document.getElementById('selected-schema');
-            schemaBadge.textContent = schemaName;
-            schemaBadge.style.display = 'inline-block';
-            
-            // 로딩 상태 표시
-            document.getElementById('loading-state').style.display = 'block';
-            document.getElementById('tables-container').innerHTML = '';
-            
-            // AJAX 요청으로 테이블 정보 로드
+        });
+        
+        // 스키마의 테이블 목록 로드
+        function loadTables(schemaName) {
             fetch(`/schema/${schemaName}/tables`)
                 .then(response => response.json())
-                .then(tables => {
-                    document.getElementById('loading-state').style.display = 'none';
-                    displayTables(tables);
+                .then(data => {
+                    const tablesContainer = document.getElementById('tablesContainer');
+                    const tablesList = document.getElementById('tablesList');
+                    
+                    tablesList.innerHTML = '';
+                    
+                    Object.entries(data).forEach(([tableName, tableInfo]) => {
+                        const tableCard = document.createElement('div');
+                        tableCard.className = 'col-md-6 mb-2';
+                        tableCard.innerHTML = `
+                            <div class="card border-light">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">${tableName}</h6>
+                                            <small class="text-muted">
+                                                행 수: ${tableInfo.row_count || 'N/A'} | 
+                                        크기: ${tableInfo.table_size || 'N/A'}
+                                            </small>
+                                        </div>
+                                    <div class="btn-group ms-2">
+                                    <a href="/schema/table/${schemaName}/${tableName}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye me-1"></i>보기
+                                        </a>
+                                                        <button onclick="loadIndexes('${schemaName}', '${tableName}')" 
+                        class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-bolt me-1"></i>인덱스
+                </button>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        tablesList.appendChild(tableCard);
+                    });
+                    
+                    tablesContainer.style.display = 'block';
+                    tablesContainer.scrollIntoView({ behavior: 'smooth' });
                 })
                 .catch(error => {
-                    console.error('Error loading tables:', error);
-                    document.getElementById('loading-state').style.display = 'none';
-                    document.getElementById('tables-container').innerHTML = 
-                        `<div class="alert alert-danger">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            테이블 정보를 불러오는데 실패했습니다: ${error.message}
-                        </div>`;
+                    console.error('테이블 로드 오류:', error);
+                    showAlert('테이블 정보를 불러오는데 실패했습니다.', 'primary');
                 });
         }
-        
-        function displayTables(tables) {
-            const container = document.getElementById('tables-container');
+
+
+
+        // 인덱스 목록 로드
+        function loadIndexes(schemaName, tableName) {
+            currentSchema = schemaName;
+            currentTableName = tableName;
             
-            if (!tables || Object.keys(tables).length === 0) {
-                container.innerHTML = `
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        선택한 스키마에 테이블이 없습니다.
-                    </div>`;
+            document.getElementById('currentTable').textContent = `(${schemaName}.${tableName})`;
+            
+            // 인덱스 정보와 테이블 컬럼 정보를 병렬로 가져오기
+            Promise.all([
+                fetch(`/schema/${schemaName}/${tableName}/indexes`).then(r => r.json()),
+                fetch(`/schema/table/${schemaName}/${tableName}`).then(r => r.text())
+            ])
+            .then(([indexData, tableHtml]) => {
+                if (indexData.success) {
+                    displayIndexes(indexData.indexes);
+                    
+                    // 테이블 컬럼 정보 파싱 (간단한 방법)
+                    loadTableColumns(schemaName, tableName);
+                    
+                    document.getElementById('indexManagement').style.display = 'block';
+                    document.getElementById('indexManagement').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    showAlert(indexData.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('인덱스 로드 오류:', error);
+                showAlert('인덱스 정보를 불러오는데 실패했습니다.', 'danger');
+            });
+        }
+        
+        // 테이블 컬럼 정보 로드
+        function loadTableColumns(schemaName, tableName) {
+            const sql = `SELECT column_name FROM information_schema.columns WHERE table_schema = '${schemaName}' AND table_name = '${tableName}' ORDER BY ordinal_position`;
+            
+            fetch('/schema/execute-sql', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'sql=' + encodeURIComponent(sql)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    const columns = data.data.map(row => row.column_name).join(', ');
+                    const columnsSpan = document.getElementById('availableColumnsList');
+                    if (columnsSpan) {
+                        columnsSpan.textContent = columns;
+                    }
+                    console.log('컬럼 정보 로드됨:', columns);
+                }
+            })
+            .catch(error => {
+                console.log('컬럼 정보 로드 실패:', error);
+            });
+        }
+
+        // 인덱스 목록 표시
+        function displayIndexes(indexes) {
+            const indexesList = document.getElementById('indexesList');
+            
+            if (indexes.length === 0) {
+                indexesList.innerHTML = '<p class="text-muted">인덱스가 없습니다.</p>';
                 return;
             }
             
-            let html = '';
-            for (const [tableName, tableInfo] of Object.entries(tables)) {
-                const rowCount = tableInfo.row_count || 0;
-                const tableSize = tableInfo.table_size || 'N/A';
+            let html = '<div class="table-responsive"><table class="table table-sm">';
+            html += '<thead><tr><th>인덱스명</th><th>타입</th><th>크기</th><th>액션</th></tr></thead>';
+            html += '<tbody>';
+            
+            indexes.forEach(index => {
+                const isPrimaryKey = index.index_type === 'PRIMARY KEY';
+                html += `
+                    <tr>
+                        <td><code class="small">${index.index_name}</code></td>
+                        <td>
+                            <span class="badge ${isPrimaryKey ? 'bg-primary' : 
+                                              index.index_type === 'UNIQUE' ? 'bg-info' : 'bg-secondary'}">
+                                ${index.index_type}
+                            </span>
+                        </td>
+                        <td>${index.index_size}</td>
+                        <td>
+                            ${!isPrimaryKey ? 
+                                `<button onclick="dropIndex('${index.index_name}')" 
+                                         class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-trash me-1"></i>삭제
+                                 </button>` : 
+                                '<span class="text-muted small">삭제 불가</span>'}
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table></div>';
+            indexesList.innerHTML = html;
+        }
+
+
+        
+        // 인덱스 생성 폼 보이기
+        function openCreateModal() {
+            console.log('인덱스 생성 폼 표시');
+            const form = document.getElementById('createIndexForm');
+            if (form) {
+                form.style.display = 'block';
                 
-                let badgeClass = 'bg-success';
-                let sizeText = '소형';
-                if (rowCount > 10000) {
-                    badgeClass = 'bg-warning';
-                    sizeText = '대형';
-                } else if (rowCount > 1000) {
-                    badgeClass = '';
-                    sizeText = '중형';
+                // 사용 가능한 컬럼 목록 표시
+                if (currentTableData && currentTableData.columns) {
+                    const columnNames = currentTableData.columns.map(col => col.column_name).join(', ');
+                    const columnsListSpan = document.getElementById('availableColumnsList');
+                    if (columnsListSpan) {
+                        columnsListSpan.textContent = columnNames;
+                    }
                 }
                 
-                html += `
-                    <div class="card table-card" onclick="viewTableData('${currentSchema}', '${tableName}')">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="table-icon">
-                                    <i class="fas fa-table"></i>
-                                </div>
-                                <div class="table-info flex-grow-1">
-                                    <h6>${tableName}</h6>
-                                    <span class="text-muted">${rowCount.toLocaleString()}개 행 • ${tableSize}</span>
-                                </div>
-                                <div class="text-end">
-                                    <span class="badge ${badgeClass}">${sizeText}</span>
-                                    <i class="fas fa-chevron-right text-muted ms-2"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
+                // 스크롤하여 폼으로 이동
+                form.scrollIntoView({ behavior: 'smooth' });
+                console.log('폼 표시 완료');
+            } else {
+                alert('폼을 찾을 수 없습니다!');
+            }
+        }
+        
+        // 인덱스 생성 폼 숨기기
+        function hideCreateForm() {
+            const form = document.getElementById('createIndexForm');
+            if (form) {
+                form.style.display = 'none';
+                // 폼 내용 초기화
+                document.getElementById('newIndexName').value = '';
+                document.getElementById('newIndexColumns').value = '';
+                document.getElementById('newIndexType').value = 'BTREE';
+                document.getElementById('newIsUnique').checked = false;
+            }
+        }
+
+        // 인덱스 생성
+        function submitNewIndex() {
+            console.log('=== submitNewIndex 함수 호출됨 ===');
+            console.log('currentSchema:', currentSchema);
+            console.log('currentTableName:', currentTableName);
+            
+            if (!currentSchema || !currentTableName) {
+                console.error('ERROR: currentSchema 또는 currentTableName이 비어있음!');
+                alert('오류: 스키마 또는 테이블 정보가 없습니다. 인덱스 버튼을 다시 클릭해주세요.');
+                return;
             }
             
-            container.innerHTML = html;
-        }
-        
-        function viewTableData(schemaName, tableName) {
-            window.open(`/schema/table/${schemaName}/${tableName}`, '_blank');
-        }
-        
-        // 페이지 로드 시 이벤트 리스너 등록
-        document.addEventListener('DOMContentLoaded', function() {
-            // 스키마 카드 클릭 이벤트 등록
-            document.addEventListener('click', function(e) {
-                const schemaCard = e.target.closest('.schema-card');
-                if (schemaCard) {
-                    const schemaName = schemaCard.getAttribute('data-schema');
-                    if (schemaName) {
-                        loadTables(schemaName);
-            }
-                }
+            // 입력 필드 확인
+            const nameField = document.getElementById('newIndexName');
+            const columnsField = document.getElementById('newIndexColumns');
+            const typeField = document.getElementById('newIndexType');
+            const uniqueField = document.getElementById('newIsUnique');
+            
+            console.log('필드 존재 여부:', {
+                nameField: !!nameField,
+                columnsField: !!columnsField,
+                typeField: !!typeField,
+                uniqueField: !!uniqueField
             });
-        });
+            
+            if (!columnsField) {
+                alert('컬럼 입력 필드를 찾을 수 없습니다!');
+                return;
+            }
+            
+            const indexName = nameField ? nameField.value.trim() : '';
+            const columns = columnsField ? columnsField.value.trim() : '';
+            const indexType = typeField ? typeField.value : 'BTREE';
+            const isUnique = uniqueField ? uniqueField.checked : false;
+            
+            console.log('필드 값들:', {
+                nameValue: nameField ? nameField.value : 'NULL',
+                columnsValue: columnsField ? columnsField.value : 'NULL',
+                nameAfterTrim: indexName,
+                columnsAfterTrim: columns
+            });
+            
+            console.log('입력값들:', { indexName, columns, indexType, isUnique });
+            
+            if (!indexName || !columns) {
+                console.log('입력값 검증 실패');
+                showAlert('인덱스 이름과 컬럼을 입력해주세요.', 'warning');
+                return;
+            }
+            
+            // 버튼 비활성화 및 로딩 표시
+            const createBtn = document.querySelector('#createIndexForm .btn-dark');
+            if (!createBtn) {
+                alert('생성 버튼을 찾을 수 없습니다!');
+                return;
+            }
+            const originalText = createBtn.innerHTML;
+            createBtn.disabled = true;
+            createBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>생성 중...';
+
+            const formData = new FormData();
+            formData.append('indexName', indexName);
+            formData.append('columns', columns);
+            formData.append('indexType', indexType);
+            formData.append('isUnique', isUnique);
+
+            const url = `/schema/${currentSchema}/${currentTableName}/indexes`;
+            console.log('요청 URL:', url);
+            console.log('요청 데이터:', Object.fromEntries(formData));
+            
+            fetch(url, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('응답 상태:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('서버 응답:', data);
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    hideCreateForm(); // 폼 숨기기
+                    loadIndexes(currentSchema, currentTableName); // 새로고침
+                } else {
+                    showAlert(data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('인덱스 생성 오류:', error);
+                showAlert('인덱스 생성 중 오류가 발생했습니다.', 'danger');
+            })
+            .finally(() => {
+                // 버튼 복원
+                createBtn.disabled = false;
+                createBtn.innerHTML = originalText;
+            });
+        }
+
+        // 인덱스 삭제
+        function dropIndex(indexName) {
+            if (!confirm(`인덱스 '${indexName}'를 삭제하시겠습니까?\n\n주의: 이 작업은 되돌릴 수 없습니다.`)) {
+                return;
+            }
+            
+            fetch(`/schema/${currentSchema}/indexes/${indexName}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    loadIndexes(currentSchema, currentTableName); // 새로고침
+                } else {
+                    showAlert(data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('인덱스 삭제 오류:', error);
+                showAlert('인덱스 삭제 중 오류가 발생했습니다.', 'danger');
+            });
+        }
+
+        // 알림 표시 헬퍼 함수
+        function showAlert(message, type = 'primary') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.container');
+            container.insertBefore(alertDiv, container.firstChild.nextSibling);
+            
+            // 5초 후 자동 제거
+            setTimeout(() => {
+                if (alertDiv && alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
     </script>
+
+    <style>
+        .card-header h6 {
+            font-weight: 600;
+        }
+        .table th, .table td {
+            white-space: nowrap;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
 </body>
 </html> 
